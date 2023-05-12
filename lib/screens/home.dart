@@ -1,18 +1,12 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
+import 'package:flutter_openai_demo/screens/result.dart';
+import 'package:flutter_openai_demo/services/recommendation.dart';
+import 'package:intl/intl.dart';
 
-const List<String> listOfRelations = <String>[
-  'Friend',
-  'Partner',
-  'Spouse',
-  'Sibling'
-];
-const List<String> listOfOccasions = <String>[
-  "Valentine's Day",
-  'Birthday',
-  'Anniversary',
-  'Retirement'
+const List<String> carRegions = <String>[
+  'Asia',
+  'Europe',
+  'US',
 ];
 
 class HomeScreen extends StatefulWidget {
@@ -24,57 +18,56 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  TextEditingController _controller = new TextEditingController();
-  String gender = "prefer not to say";
-  String firstDropdownValue = listOfRelations.first;
-  String secondDropdownValue = listOfOccasions.first;
+  final TextEditingController _controller = TextEditingController();
+  String carRegionValue = carRegions.first;
   bool isLoading = false;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: const Text('OpenAI Demo'),
-        ),
-        body: Form(
+      resizeToAvoidBottomInset: false,
+      appBar: AppBar(
+        title: const Text('Car Recommendation'),
+      ),
+      body: SingleChildScrollView(
+        child: Form(
           key: _formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Padding(
-                padding: const EdgeInsets.only(left: 10),
+              const Center(
+                heightFactor: 4,
                 child: Text(
-                  "gifts by 🤖",
+                  'Car Recommendations by AI',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
-              Divider(),
-              SizedBox(
-                height: 20,
-              ),
-              Padding(
-                padding: const EdgeInsets.only(left: 10),
+              const Padding(
+                padding: EdgeInsets.only(left: 16),
                 child: Text(
-                  "who is the gift for?",
+                  "Choose Car Region",
                 ),
               ),
-              Center(
+              Padding(
+                padding: const EdgeInsets.only(left: 16),
                 child: DropdownButton<String>(
-                  value: firstDropdownValue,
+                  value: carRegionValue,
                   icon: const Icon(Icons.arrow_drop_down),
                   elevation: 16,
-                  style: const TextStyle(color: Colors.deepPurple),
+                  style: const TextStyle(color: Colors.teal),
                   underline: Container(
                     height: 2,
-                    color: Colors.deepPurpleAccent,
+                    color: Colors.tealAccent,
                   ),
                   onChanged: (String? value) {
-                    // This is called when the user selects an item.
                     setState(() {
-                      firstDropdownValue = value!;
+                      carRegionValue = value!;
                     });
                   },
-                  items: listOfRelations
-                      .map<DropdownMenuItem<String>>((String value) {
+                  items:
+                      carRegions.map<DropdownMenuItem<String>>((String value) {
                     return DropdownMenuItem<String>(
                       value: value,
                       child: Text(value),
@@ -82,99 +75,28 @@ class _HomeScreenState extends State<HomeScreen> {
                   }).toList(),
                 ),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 10,
               ),
-              Padding(
-                padding: const EdgeInsets.only(left: 10),
+              const Padding(
+                padding: EdgeInsets.only(left: 16),
                 child: Text(
-                  "what do they identify as?",
-                ),
-              ),
-              RadioListTile(
-                title: Text("Male"),
-                value: "male",
-                groupValue: gender,
-                onChanged: (value) {
-                  setState(() {
-                    gender = value.toString();
-                  });
-                },
-              ),
-              RadioListTile(
-                title: Text("Female"),
-                value: "female",
-                groupValue: gender,
-                onChanged: (value) {
-                  setState(() {
-                    gender = value.toString();
-                  });
-                },
-              ),
-              RadioListTile(
-                title: Text("Prefer not to say"),
-                value: "prefer not to say",
-                groupValue: gender,
-                onChanged: (value) {
-                  setState(() {
-                    gender = value.toString();
-                  });
-                },
-              ),
-              SizedBox(
-                height: 10,
-              ),
-              Padding(
-                padding: const EdgeInsets.only(left: 10),
-                child: Text(
-                  "what is the occasion?",
-                ),
-              ),
-              Center(
-                child: DropdownButton<String>(
-                  value: secondDropdownValue,
-                  icon: const Icon(Icons.arrow_drop_down),
-                  elevation: 16,
-                  style: const TextStyle(color: Colors.deepPurple),
-                  underline: Container(
-                    height: 2,
-                    color: Colors.deepPurpleAccent,
-                  ),
-                  onChanged: (String? value) {
-                    // This is called when the user selects an item.
-                    setState(() {
-                      secondDropdownValue = value!;
-                    });
-                  },
-                  items: listOfOccasions
-                      .map<DropdownMenuItem<String>>((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    );
-                  }).toList(),
-                ),
-              ),
-              SizedBox(
-                height: 10,
-              ),
-              Padding(
-                padding: const EdgeInsets.only(left: 10),
-                child: Text(
-                  "tell us about their hobbies or interests",
+                  "Please enter your budget in IDR",
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.all(10.0),
+                padding: const EdgeInsets.all(16.0),
                 child: TextFormField(
+                  keyboardType: TextInputType.number,
                   controller: _controller,
                   decoration: const InputDecoration(
-                    hintText:
-                        'Enter a hobby/interest (Example: Playing Football, Gardening, etc)',
+                    hintText: 'Enter a budget (in IDR)',
                   ),
                   validator: (String? value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter some hobbies';
+                    if (value == null ||
+                        value.isEmpty ||
+                        int.tryParse(value) == null) {
+                      return 'Please enter valid numbers';
                     }
                     return null;
                   },
@@ -184,20 +106,35 @@ class _HomeScreenState extends State<HomeScreen> {
                 padding: const EdgeInsets.all(10.0),
                 child: ElevatedButton(
                   onPressed: () async {
-                    //We'll add code here to get response
+                    final result =
+                        await RecommendationService.getRecommendations(
+                      carRegion: carRegionValue,
+                      budget: _controller.value.text,
+                    );
+                    if (mounted) {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) {
+                            return ResultScreen(gptResponseData: result);
+                          },
+                        ),
+                      );
+                    }
                   },
                   child: Center(
                     child:
                         isLoading && _formKey.currentState!.validate() != false
                             ? const CircularProgressIndicator(
-                                color: Colors.white,
+                                color: Colors.teal,
                               )
-                            : Text("Generate Gift Ideas"),
+                            : const Text("Get Recommendations"),
                   ),
                 ),
               ),
             ],
           ),
-        ));
+        ),
+      ),
+    );
   }
 }
