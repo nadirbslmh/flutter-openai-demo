@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_openai_demo/screens/result.dart';
 import 'package:flutter_openai_demo/services/recommendation.dart';
-import 'package:intl/intl.dart';
 
 const List<String> carRegions = <String>[
   'Asia',
