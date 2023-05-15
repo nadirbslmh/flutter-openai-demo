@@ -93,9 +93,11 @@ class _HomeScreenState extends State<HomeScreen> {
                     hintText: 'Enter a budget (in IDR)',
                   ),
                   validator: (String? value) {
-                    if (value == null ||
+                    bool isInvalid = value == null ||
                         value.isEmpty ||
-                        int.tryParse(value) == null) {
+                        int.tryParse(value) == null;
+
+                    if (isInvalid) {
                       return 'Please enter valid numbers';
                     }
                     return null;
@@ -104,32 +106,40 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               Padding(
                 padding: const EdgeInsets.all(10.0),
-                child: ElevatedButton(
-                  onPressed: () async {
-                    final result =
-                        await RecommendationService.getRecommendations(
-                      carRegion: carRegionValue,
-                      budget: _controller.value.text,
-                    );
-                    if (mounted) {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) {
-                            return ResultScreen(gptResponseData: result);
-                          },
+                child: isLoading && _formKey.currentState!.validate() != false
+                    ? const Center(
+                        child: CircularProgressIndicator(),
+                      )
+                    : ElevatedButton(
+                        onPressed: () async {
+                          setState(() {
+                            isLoading = true;
+                          });
+
+                          final result =
+                              await RecommendationService.getRecommendations(
+                            carRegion: carRegionValue,
+                            budget: _controller.value.text,
+                          );
+
+                          if (mounted) {
+                            setState(() {
+                              isLoading = false;
+                            });
+
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) {
+                                  return ResultScreen(gptResponseData: result);
+                                },
+                              ),
+                            );
+                          }
+                        },
+                        child: const Center(
+                          child: Text("Get Recommendations"),
                         ),
-                      );
-                    }
-                  },
-                  child: Center(
-                    child:
-                        isLoading && _formKey.currentState!.validate() != false
-                            ? const CircularProgressIndicator(
-                                color: Colors.teal,
-                              )
-                            : const Text("Get Recommendations"),
-                  ),
-                ),
+                      ),
               ),
             ],
           ),

@@ -36,10 +36,8 @@ class RecommendationService {
 
       String carBudget = formatCurrency.format(int.parse(budget));
 
-      print("the budget: $carBudget");
-
       String promptData =
-          "Please give me a car recommendation from ${carRegion.toLowerCase()} manufacturers with budget equals to $carBudget";
+          "You are a car expert. Please give me a car recommendation from ${carRegion.toLowerCase()} manufacturers with budget equals to $carBudget";
       final data = jsonEncode({
         "model": "text-davinci-003",
         "prompt": promptData,
