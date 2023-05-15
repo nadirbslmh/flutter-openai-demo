@@ -1,16 +1,9 @@
 # flutter_openai_demo
 
-A new Flutter project.
+A mobile application to get car recommendations with OpenAI. Created with Flutter.
 
-## Getting Started
+## How to use
 
-This project is a starting point for a Flutter application.
+1. Make sure the Flutter is installed on your machine.
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+2. Run the application.

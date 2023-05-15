@@ -1,1 +1,3 @@
-String apiKey = "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";
+import 'package:flutter_openai_demo/env/env.dart';
+
+String apiKey = Env.apiKey;
