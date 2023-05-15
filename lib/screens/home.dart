@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_openai_demo/models/open_ai.dart';
 import 'package:flutter_openai_demo/screens/result.dart';
 import 'package:flutter_openai_demo/services/recommendation.dart';
 
