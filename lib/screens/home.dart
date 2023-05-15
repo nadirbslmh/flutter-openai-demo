@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_openai_demo/models/open_ai.dart';
 import 'package:flutter_openai_demo/screens/result.dart';
 import 'package:flutter_openai_demo/services/recommendation.dart';
 
@@ -20,6 +21,39 @@ class _HomeScreenState extends State<HomeScreen> {
   final TextEditingController _controller = TextEditingController();
   String carRegionValue = carRegions.first;
   bool isLoading = false;
+
+  void _getRecommendations() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      final result = await RecommendationService.getRecommendations(
+        carRegion: carRegionValue,
+        budget: _controller.value.text,
+      );
+
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) {
+              return ResultScreen(gptResponseData: result);
+            },
+          ),
+        );
+      }
+    } catch (e) {
+      const snackBar = SnackBar(
+        content: Text('Failed to send a request. Please try again.'),
+      );
+
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -110,31 +144,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: CircularProgressIndicator(),
                       )
                     : ElevatedButton(
-                        onPressed: () async {
-                          setState(() {
-                            isLoading = true;
-                          });
-
-                          final result =
-                              await RecommendationService.getRecommendations(
-                            carRegion: carRegionValue,
-                            budget: _controller.value.text,
-                          );
-
-                          if (mounted) {
-                            setState(() {
-                              isLoading = false;
-                            });
-
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (context) {
-                                  return ResultScreen(gptResponseData: result);
-                                },
-                              ),
-                            );
-                          }
-                        },
+                        onPressed: _getRecommendations,
                         child: const Center(
                           child: Text("Get Recommendations"),
                         ),
